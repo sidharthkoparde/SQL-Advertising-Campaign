@@ -1,0 +1,25 @@
+SELECT 
+    c.campaign_id,
+    c.campaign_name,
+    SUM(b.ad_spend) AS total_spend,
+    SUM(e.clicks) AS total_clicks,
+    SUM(e.conversions) AS total_conversions,
+    (SUM(e.clicks) / SUM(b.ad_spend)) * 1000 AS ctr_per_thousand_spend,
+    (SUM(e.conversions) / SUM(b.ad_spend)) * 100 AS conversion_rate
+FROM 
+    Campaigns c
+JOIN 
+    Ads a ON c.campaign_id = a.campaign_id
+JOIN 
+    Engagement e ON a.ad_id = e.ad_id
+JOIN 
+    Budgets b ON a.ad_id = b.ad_id
+WHERE 
+    c.campaign_status = 'Active'
+    AND e.engagement_date BETWEEN '2023-01-01' AND '2023-06-30'
+GROUP BY 
+    c.campaign_id, c.campaign_name
+HAVING 
+    SUM(b.ad_spend) > 10000
+ORDER BY 
+    conversion_rate DESC;
